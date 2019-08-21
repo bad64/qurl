@@ -54,7 +54,8 @@ std::string request(std::string method, std::string target, std::string content)
     {
         bytesread = read(sock, buf, 1024);
         resp << buf;
-        buf[0] = '\0';
+        for (int i = 0; i < 1024; i++)
+            buf[i] = '\0';
     } while (bytesread == 1024);
 
     return resp.str();
