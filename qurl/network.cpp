@@ -1,62 +1,61 @@
 #include "includes.h"
+#include <cerrno>
+#include <cstring>
 
-std::string request(std::string method, std::string target, std::string content)
+std::string curlRequest(std::string method, std::string target, std::string content)
 {
+    int offset = 0;
+    if (target.find("http://") != std::string::npos)
+        offset = 7;
+
     // Get resource first
     std::string resource = "/";
-    if (target.find('/') != std::string::npos)
-        resource += target.substr('/');
+    if (target.find('/', 8) != std::string::npos)
+        resource = target.substr(target.find('/', offset));
 
     // Get port second
-    unsigned int port = 80;
-    if (target.find(':') != std::string::npos)
+    uint16_t port = 80;
+    if (target.find(':', 8) != std::string::npos)
     {
         if (resource == "/")
-            port = std::stoul(target.substr(target.find(':')));
+            port = std::stoul(target.substr(target.find(':', offset)+1));
         else
-            port = std::stoul(target.substr(target.find(':'), target.find('/')));
+            port = std::stoul(target.substr(target.find(':', offset)+1, target.find('/', offset)));
     }
 
-    int sock;
-    struct sockaddr_in serv_addr;
+    //Get domain last
+    std::string domain;
+    if (port == 80)
+        domain = target.substr(offset, target.find('/', offset));
+    else
+        domain = target.substr(offset, target.find(':', offset));
 
-    sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock < 0)
-        return "ERROR: Could not open socket";
-
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(port);
-
-    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
-        return "Unable to connect to target " + target;
+    // Set up connection socket
+    QTcpSocket* sock = new QTcpSocket();
+    sock->connectToHost(QString::fromStdString(domain), port);
+    if (!sock->waitForConnected(30000))
+    {
+        std::stringstream err;
+        err << "Connection timed out";
+        std::cout << err.str() << std::endl;
+        return err.str();
+    }
 
     // Build the HTTP request
     std::stringstream req;
     req << method << " " << resource << " HTTP/1.1\r\n";
-    req << "Host: ";
-    if (port == 80)
-        req << target.substr(0, target.find('/'));
-    else
-        req << target.substr(0, target.find(':'));
-    req << "\r\nConnection: close\r\n\r\n";
+    req << "Host: " << domain << "\r\n";
+    req << "Connection: close\r\n\r\n";
 
     if (method == "POST")
         req << content;
 
     // Send it
-    char buf[1024] = { '\0' };
     std::stringstream resp;
+    sock->write(req.str().c_str());
+    sock->waitForReadyRead();
+    resp << sock->readAll().toStdString();
 
-    send(sock, req.str().c_str(), req.str().size(), 0);
-
-    int bytesread;
-    do
-    {
-        bytesread = read(sock, buf, 1024);
-        resp << buf;
-        for (int i = 0; i < 1024; i++)
-            buf[i] = '\0';
-    } while (bytesread == 1024);
-
+    sock->close();
     return resp.str();
 }

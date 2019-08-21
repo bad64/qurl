@@ -9,24 +9,7 @@
 #include <unistd.h>
 
 // Sockets
-#if (defined (_WIN32) || defined (_WIN64))
-    #include <winsock2.h>
-    #include <windows.h>
-#else
-    #include <sys/ioctl.h>
-    #include <sys/stat.h>
-    #include <sys/types.h>
-    #include <sys/socket.h>
-    #include <arpa/inet.h>
-    #include <netinet/in.h>
-
-    #define closesocket(s) close(s)
-
-    typedef int SOCKET;
-    typedef struct sockaddr_in SOCKADDR_IN;
-    typedef struct sockaddr SOCKADDR;
-    typedef struct in_addr IN_ADDR;
-#endif
+#include <QTcpSocket>
 
 // Qt
 #include <QtWidgets>
@@ -41,6 +24,7 @@ class TargetBoxWidget : public QWidget
 public:
     TargetBoxWidget();
     ~TargetBoxWidget();
+    std::string get();
 
 private:
     QLabel *label;
@@ -55,6 +39,7 @@ class MethodBoxWidget : public QWidget
 public:
     MethodBoxWidget();
     ~MethodBoxWidget();
+    std::string get();
 
 private:
     QLabel *label;
@@ -69,6 +54,7 @@ class HeadersBoxWidget : public QWidget
 public:
     HeadersBoxWidget();
     ~HeadersBoxWidget();
+    bool get();
 
 private:
     QLabel *label;
@@ -83,6 +69,8 @@ class RequestBoxWidget : public QWidget
 public:
     RequestBoxWidget();
     ~RequestBoxWidget();
+    QGroupBox* item();
+    std::string get();
 
 private:
     QGroupBox *group;
@@ -97,6 +85,9 @@ class ResponseBoxWidget : public QWidget
 public:
     ResponseBoxWidget();
     ~ResponseBoxWidget();
+    QGroupBox* item();
+    std::string get();
+    void set(std::string content);
 
 private:
     QGroupBox *group;
@@ -104,7 +95,7 @@ private:
     QVBoxLayout *layout;
 };
 
-class MainWindow : public QWidget
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
@@ -112,7 +103,12 @@ public:
     MainWindow();
     ~MainWindow();
 
+public slots:
+    void sendRequest();
+    void clear();
+
 private:
+    QWidget *mainWidget;
     QGridLayout *layout;
     QPushButton *buttonSend;
     QPushButton *buttonClear;
@@ -126,6 +122,6 @@ private:
 };
 
 // Network
-std::string request(std::string method, std::string target, std::string content);
+std::string curlRequest(std::string method, std::string target, std::string content);
 
 #endif // INCLUDES_H
