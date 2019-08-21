@@ -6,6 +6,7 @@
 // Standard lib
 #include <iostream>
 #include <sstream>
+#include <unistd.h>
 
 // Sockets
 #if (defined (_WIN32) || defined (_WIN64))
@@ -31,6 +32,98 @@
 #include <QtWidgets>
 
 /* PROTOTYPES */
+
+// Widgets
+class TargetBoxWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    TargetBoxWidget();
+    ~TargetBoxWidget();
+
+private:
+    QLabel *label;
+    QLineEdit *box;
+    QHBoxLayout *layout;
+};
+
+class MethodBoxWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    MethodBoxWidget();
+    ~MethodBoxWidget();
+
+private:
+    QLabel *label;
+    QComboBox *box;
+    QHBoxLayout *layout;
+};
+
+class HeadersBoxWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    HeadersBoxWidget();
+    ~HeadersBoxWidget();
+
+private:
+    QLabel *label;
+    QCheckBox *box;
+    QHBoxLayout *layout;
+};
+
+class RequestBoxWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    RequestBoxWidget();
+    ~RequestBoxWidget();
+
+private:
+    QGroupBox *group;
+    QPlainTextEdit *text;
+    QVBoxLayout *layout;
+};
+
+class ResponseBoxWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    ResponseBoxWidget();
+    ~ResponseBoxWidget();
+
+private:
+    QGroupBox *group;
+    QPlainTextEdit *text;
+    QVBoxLayout *layout;
+};
+
+class MainWindow : public QWidget
+{
+    Q_OBJECT
+
+public:
+    MainWindow();
+    ~MainWindow();
+
+private:
+    QGridLayout *layout;
+    QPushButton *buttonSend;
+    QPushButton *buttonClear;
+
+    TargetBoxWidget *target;
+    MethodBoxWidget *method;
+    HeadersBoxWidget *headers;
+
+    RequestBoxWidget *request;
+    ResponseBoxWidget *response;
+};
 
 // Network
 std::string request(std::string method, std::string target, std::string content);

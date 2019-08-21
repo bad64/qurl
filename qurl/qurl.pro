@@ -5,4 +5,5 @@ HEADERS += \
 
 SOURCES += \
     main.cpp \
-    network.cpp
+    network.cpp \
+    widgets.cpp
