@@ -41,8 +41,13 @@ void MainWindow::sendRequest()
     {
         std::string resp = curlRequest(method->get(), target->get(), request->get());
 
-        std::string _headers = resp.substr(0, resp.find("\r\n\r\n"));
-        std::string _body = resp.substr(resp.find("\r\n\r\n")+4);
+        std::string _headers = "";
+        std::string _body = resp;
+        if (resp != "Connection timed out")
+        {
+            std::string _headers = resp.substr(0, resp.find("\r\n\r\n"));
+            std::string _body = resp.substr(resp.find("\r\n\r\n")+4);
+        }
 
         // Alter the body to make it look like we actually parsed the JSON
         //if (method->get() == "POST")

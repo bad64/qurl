@@ -4,6 +4,7 @@
 
 std::string curlRequest(std::string method, std::string target, std::string content)
 {
+    // Do we have a HTTP prefix ?
     int offset = 0;
     if (target.find("http://") != std::string::npos)
         offset = 7;
@@ -30,6 +31,13 @@ std::string curlRequest(std::string method, std::string target, std::string cont
     else
         domain = target.substr(offset, target.find(':', offset));
 
+    // Special cases
+    if (domain == "localhost")
+    {
+        target.replace(target.find(domain), domain.size(), "127.0.0.1");
+        domain = "127.0.0.1";
+    }
+
     // Set up connection socket
     QTcpSocket* sock = new QTcpSocket();
     sock->connectToHost(QString::fromStdString(domain), port);
@@ -37,7 +45,6 @@ std::string curlRequest(std::string method, std::string target, std::string cont
     {
         std::stringstream err;
         err << "Connection timed out";
-        std::cout << err.str() << std::endl;
         return err.str();
     }
 
