@@ -52,6 +52,11 @@ std::string curlRequest(std::string method, std::string target, std::string cont
     std::stringstream req;
     req << method << " " << resource << " HTTP/1.1\r\n";
     req << "Host: " << domain << "\r\n";
+    if (method == "POST")
+    {
+        req << "Content-type: application/json\r\n";
+        req << "Content-length: " << content.length() << "\r\n";
+    }
     req << "Connection: close\r\n\r\n";
 
     if (method == "POST")

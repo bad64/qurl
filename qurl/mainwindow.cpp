@@ -86,7 +86,7 @@ void MainWindow::sendRequest()
                 }
                 else if (_body[i] == ',')
                 {
-                    if (noparse == false) _body[i+1] = '\n';
+                    if (noparse == false) _body.insert(i+1, 1, '\n');
                 }
                 else if (_body[i] == '\n')
                 {
